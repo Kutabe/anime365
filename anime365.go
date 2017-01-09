@@ -46,36 +46,36 @@ type description struct {
 }
 
 type Series struct {
-	ID                 uint32      `json:"id"`
-	AniDbID            uint32      `json:"aniDbId"`
-	AnimeNewsNetworkID uint32      `json:"animeNewsNetworkId"`
-	FansubsID          uint32      `json:"fansubsId"`
-	ImdbID             uint32      `json:"imdbId"`
-	WorldArtID         uint32      `json:"worldArtId"`
-	IsActive           uint32      `json:"isActive"`
-	IsAiring           uint32      `json:"isAiring"`
-	IsHentai           uint32      `json:"isHentai"`
-	Links              []link      `json:"link"`
-	MyAnimeListID      uint32      `json:"myAnimeListId"`
-	MyAnimeListScore   string      `json:"myAnimeListScore"`
-	WorldArtListScore  string      `json:"worldArtListScore"`
-	WorldArtTopPlace   uint32      `json:"worldArtTopPlace"`
-	NumberOfEpisodes   uint32      `json:"numberOfEpisodes"`
-	PosterURL          string      `json:"posterUrl"`
-	PosterURLSmall     string      `json:"posterUrlSmall"`
-	Season             string      `json:"string"`
-	Year               uint32      `json:"year"`
-	Type               string      `json:"type"`
-	TypeTitle          string      `json:"typeTitle"`
-	CountViews         uint32      `json:"countViews"`
-	Titles             title       `json:"titles"`
-	TitleLines         []string    `json:"titleLines"`
-	AllTitles          []string    `json:"allTitles"`
-	Title              string      `json:"title"`
-	URL                string      `json:"url"`
-	Descriptions       description `json:"descriptions"`
-	Episodes           []Episode   `json:"episodes"`
-	Genres             []genre     `json:"genres"`
+	ID                 uint32        `json:"id"`
+	AniDbID            uint32        `json:"aniDbId"`
+	AnimeNewsNetworkID uint32        `json:"animeNewsNetworkId"`
+	FansubsID          uint32        `json:"fansubsId"`
+	ImdbID             uint32        `json:"imdbId"`
+	WorldArtID         uint32        `json:"worldArtId"`
+	IsActive           uint32        `json:"isActive"`
+	IsAiring           uint32        `json:"isAiring"`
+	IsHentai           uint32        `json:"isHentai"`
+	Links              []link        `json:"link"`
+	MyAnimeListID      uint32        `json:"myAnimeListId"`
+	MyAnimeListScore   string        `json:"myAnimeListScore"`
+	WorldArtListScore  string        `json:"worldArtListScore"`
+	WorldArtTopPlace   uint32        `json:"worldArtTopPlace"`
+	NumberOfEpisodes   uint32        `json:"numberOfEpisodes"`
+	PosterURL          string        `json:"posterUrl"`
+	PosterURLSmall     string        `json:"posterUrlSmall"`
+	Season             string        `json:"string"`
+	Year               uint32        `json:"year"`
+	Type               string        `json:"type"`
+	TypeTitle          string        `json:"typeTitle"`
+	CountViews         uint32        `json:"countViews"`
+	Titles             title         `json:"titles"`
+	TitleLines         []string      `json:"titleLines"`
+	AllTitles          []string      `json:"allTitles"`
+	Title              string        `json:"title"`
+	URL                string        `json:"url"`
+	Descriptions       []description `json:"descriptions"`
+	Episodes           []Episode     `json:"episodes"`
+	Genres             []genre       `json:"genres"`
 }
 
 type Translation struct {
@@ -119,15 +119,16 @@ type Episode struct {
 	Translations          []Translation `json:"translations"`
 }
 
-func GetTranslations(parameters map[string]string) (*[]Translation, error) {
+func GetTranslations(parameters map[string]string) ([]Translation, error) {
 	requestURL, err := url.Parse(apiURL + "translations")
 	if err != nil {
 		return nil, err
 	}
+	requestQuery := requestURL.Query()
 	for key, value := range parameters {
-		requestURL.Query().Set(key, value)
+		requestQuery.Set(key, value)
 	}
-	requestURL.RawQuery = requestURL.Query().Encode()
+	requestURL.RawQuery = requestQuery.Encode()
 	response, err := http.Get(requestURL.String())
 	if err != nil {
 		return nil, err
@@ -137,7 +138,7 @@ func GetTranslations(parameters map[string]string) (*[]Translation, error) {
 	if err != nil {
 		return nil, err
 	}
-	var jsonResponse map[string]*[]Translation
+	var jsonResponse map[string][]Translation
 	if err := json.Unmarshal(content, &jsonResponse); err != nil {
 		return nil, err
 	}
@@ -169,15 +170,16 @@ func GetTranslationByID(id int, parameters map[string]string) (*Translation, err
 	return jsonResponse["data"], nil
 }
 
-func GetSeries(parameters map[string]string) (*[]Series, error) {
+func GetSeries(parameters map[string]string) ([]Series, error) {
 	requestURL, err := url.Parse(apiURL + "series")
 	if err != nil {
 		return nil, err
 	}
+	requestQuery := requestURL.Query()
 	for key, value := range parameters {
-		requestURL.Query().Set(key, value)
+		requestQuery.Set(key, value)
 	}
-	requestURL.RawQuery = requestURL.Query().Encode()
+	requestURL.RawQuery = requestQuery.Encode()
 	response, err := http.Get(requestURL.String())
 	if err != nil {
 		return nil, err
@@ -187,7 +189,7 @@ func GetSeries(parameters map[string]string) (*[]Series, error) {
 	if err != nil {
 		return nil, err
 	}
-	var jsonResponse map[string]*[]Series
+	var jsonResponse map[string][]Series
 	if err := json.Unmarshal(content, &jsonResponse); err != nil {
 		return nil, err
 	}
@@ -199,10 +201,11 @@ func GetSeriesById(id int, parameters map[string]string) (*Series, error) {
 	if err != nil {
 		return nil, err
 	}
+	requestQuery := requestURL.Query()
 	for key, value := range parameters {
-		requestURL.Query().Set(key, value)
+		requestQuery.Set(key, value)
 	}
-	requestURL.RawQuery = requestURL.Query().Encode()
+	requestURL.RawQuery = requestQuery.Encode()
 	response, err := http.Get(requestURL.String())
 	if err != nil {
 		return nil, err
@@ -220,15 +223,15 @@ func GetSeriesById(id int, parameters map[string]string) (*Series, error) {
 }
 
 func GetEpisodeByID(id int, parameters map[string]string) (*Episode, error) {
-	requestUrlRaw := apiURL + "episodes/" + strconv.Itoa(id)
-	requestURL, err := url.Parse(requestUrlRaw)
+	requestURL, err := url.Parse(apiURL + "episodes/" + strconv.Itoa(id))
 	if err != nil {
 		return nil, err
 	}
+	requestQuery := requestURL.Query()
 	for key, value := range parameters {
-		requestURL.Query().Set(key, value)
+		requestQuery.Set(key, value)
 	}
-	requestURL.RawQuery = requestURL.Query().Encode()
+	requestURL.RawQuery = requestQuery.Encode()
 	response, err := http.Get(requestURL.String())
 	if err != nil {
 		return nil, err
