@@ -144,7 +144,7 @@ func GetTranslations(parameters map[string]string) (*[]Translation, error) {
 	return jsonResponse["data"], nil
 }
 
-func GetTranslationByID(id uint32, parameters map[string]string) (*Translation, error) {
+func GetTranslationByID(id int, parameters map[string]string) (*Translation, error) {
 	requestURL, err := url.Parse(apiURL + "translations/" + strconv.Itoa(id))
 	if err != nil {
 		return nil, err
@@ -194,7 +194,7 @@ func GetSeries(parameters map[string]string) (*[]Series, error) {
 	return jsonResponse["data"], nil
 }
 
-func GetSeriesById(id uint32, parameters map[string]string) (*Series, error) {
+func GetSeriesById(id int, parameters map[string]string) (*Series, error) {
 	requestURL, err := url.Parse(apiURL + "series/" + strconv.Itoa(id))
 	if err != nil {
 		return nil, err
@@ -219,7 +219,7 @@ func GetSeriesById(id uint32, parameters map[string]string) (*Series, error) {
 	return jsonResponse["data"], nil
 }
 
-func GetEpisodeByID(id uint32, parameters map[string]string) (*Episode, error) {
+func GetEpisodeByID(id int, parameters map[string]string) (*Episode, error) {
 	requestUrlRaw := apiURL + "episodes/" + strconv.Itoa(id)
 	requestURL, err := url.Parse(requestUrlRaw)
 	if err != nil {
