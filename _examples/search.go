@@ -23,7 +23,7 @@ func main() {
 		for _, episode := range series.Episodes {
 			fmt.Printf("#%s\n", episode.EpisodeInt)
 			fmt.Printf("Translations:\n")
-			respEpisode, err := anime365.GetEpisodeByID(int(episode.ID), nil)
+			respEpisode, err := anime365.GetEpisodeByID(episode.ID, nil)
 			if err != nil {
 				log.Println(err)
 			}
