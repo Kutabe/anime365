@@ -2,10 +2,10 @@ package anime365
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"strconv"
 )
 
 const apiURL = "https://smotret-anime.ru/api/"
@@ -45,6 +45,7 @@ type description struct {
 	UpdatedDateTime string `json:"updatedDateTime"`
 }
 
+// Series structure contains parsed JSON response with all fields
 type Series struct {
 	ID                 uint32        `json:"id"`
 	AniDbID            uint32        `json:"aniDbId"`
@@ -52,9 +53,6 @@ type Series struct {
 	FansubsID          uint32        `json:"fansubsId"`
 	ImdbID             uint32        `json:"imdbId"`
 	WorldArtID         uint32        `json:"worldArtId"`
-	IsActive           uint32        `json:"isActive"`
-	IsAiring           uint32        `json:"isAiring"`
-	IsHentai           uint32        `json:"isHentai"`
 	Links              []link        `json:"link"`
 	MyAnimeListID      uint32        `json:"myAnimeListId"`
 	MyAnimeListScore   string        `json:"myAnimeListScore"`
@@ -76,15 +74,42 @@ type Series struct {
 	Descriptions       []description `json:"descriptions"`
 	Episodes           []Episode     `json:"episodes"`
 	Genres             []genre       `json:"genres"`
+	isActive           uint8
+	isAiring           uint8
+	isHentai           uint8
 }
 
+// IsActive returns boolean value whether series is active (true) or not (false)
+func (s *Series) IsActive() bool {
+	if s.isActive == 1 {
+		return true
+	}
+	return false
+}
+
+// IsAiring returns boolean value whether series is airing (true) or not (false)
+func (s *Series) IsAiring() bool {
+	if s.isAiring == 1 {
+		return true
+	}
+	return false
+}
+
+// IsHentai returns boolean value whether series is hentai (true) or not (false)
+func (s *Series) IsHentai() bool {
+	if s.isHentai == 1 {
+		return true
+	}
+	return false
+}
+
+// Translation structure contains parsed JSON response with all fields
 type Translation struct {
 	ID                   uint32             `json:"id"`
 	AddedDateTime        string             `json:"addedDateTime"`
 	ActiveDateTime       string             `json:"activeDateTime"`
 	AuthorsList          []string           `json:"authorsList"`
 	FansubsTranslationID uint32             `json:"fansubsTranslationId"`
-	IsActive             uint32             `json:"isActive"`
 	Priority             uint32             `json:"priority"`
 	QualityType          string             `json:"qualityType"`
 	Type                 string             `json:"type"`
@@ -104,8 +129,18 @@ type Translation struct {
 	Duration             string             `json:"duration"`
 	Width                uint32             `json:"width"`
 	Height               uint32             `json:"height"`
+	isActive             uint8
 }
 
+// IsActive returns boolean value whether translation is active (true) or not (false)
+func (t *Translation) IsActive() bool {
+	if t.isActive == 1 {
+		return true
+	}
+	return false
+}
+
+// Episode structure contains parsed JSON response with all fields
 type Episode struct {
 	ID                    uint32        `json:"id"`
 	EpisodeFull           string        `json:"episodeFull"`
@@ -113,12 +148,21 @@ type Episode struct {
 	EpisodeTitle          string        `json:"episodeTitle"`
 	EpisodeType           string        `json:"episodeType"`
 	FirstUploadedDateTime string        `json:"firstUploadedDateTime"`
-	IsActive              uint32        `json:"isActive"`
 	SeriesID              uint32        `json:"seriesId"`
 	CountViews            uint32        `json:"countViews"`
 	Translations          []Translation `json:"translations"`
+	isActive              uint8
 }
 
+// IsActive returns boolean value whether episode is active (true) or not (false)
+func (e *Episode) IsActive() bool {
+	if e.isActive == 1 {
+		return true
+	}
+	return false
+}
+
+// GetTranslations makes request to API with followed parameters and returns list of Translation structures
 func GetTranslations(parameters map[string]string) ([]Translation, error) {
 	requestURL, err := url.Parse(apiURL + "translations")
 	if err != nil {
@@ -145,8 +189,9 @@ func GetTranslations(parameters map[string]string) ([]Translation, error) {
 	return jsonResponse["data"], nil
 }
 
-func GetTranslationByID(id int, parameters map[string]string) (*Translation, error) {
-	requestURL, err := url.Parse(apiURL + "translations/" + strconv.Itoa(id))
+// GetTranslationByID makes request by ID with followed parameters to API and returns a Translation structure
+func GetTranslationByID(id uint32, parameters map[string]string) (*Translation, error) {
+	requestURL, err := url.Parse(apiURL + "translations/" + fmt.Sprint(id))
 	if err != nil {
 		return nil, err
 	}
@@ -170,6 +215,7 @@ func GetTranslationByID(id int, parameters map[string]string) (*Translation, err
 	return jsonResponse["data"], nil
 }
 
+// GetSeries makes request to API with followed parameters and returns list of Series structures
 func GetSeries(parameters map[string]string) ([]Series, error) {
 	requestURL, err := url.Parse(apiURL + "series")
 	if err != nil {
@@ -196,8 +242,9 @@ func GetSeries(parameters map[string]string) ([]Series, error) {
 	return jsonResponse["data"], nil
 }
 
-func GetSeriesById(id int, parameters map[string]string) (*Series, error) {
-	requestURL, err := url.Parse(apiURL + "series/" + strconv.Itoa(id))
+// GetSeriesByID makes request by ID with followed parameters to API and returns a Series structure
+func GetSeriesByID(id uint32, parameters map[string]string) (*Series, error) {
+	requestURL, err := url.Parse(apiURL + "series/" + fmt.Sprint(id))
 	if err != nil {
 		return nil, err
 	}
@@ -222,8 +269,9 @@ func GetSeriesById(id int, parameters map[string]string) (*Series, error) {
 	return jsonResponse["data"], nil
 }
 
-func GetEpisodeByID(id int, parameters map[string]string) (*Episode, error) {
-	requestURL, err := url.Parse(apiURL + "episodes/" + strconv.Itoa(id))
+// GetEpisodeByID makes request by ID with followed parameters to API and returns an Episode structure
+func GetEpisodeByID(id uint32, parameters map[string]string) (*Episode, error) {
+	requestURL, err := url.Parse(apiURL + "episodes/" + fmt.Sprint(id))
 	if err != nil {
 		return nil, err
 	}
